@@ -1,5 +1,6 @@
 import 'package:app/screen/home_page.dart';
 import 'package:app/screen/login_page.dart';
+import 'package:app/screen/registration_page.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -30,6 +31,7 @@ class MyApp extends StatelessWidget {
       routes: {
         '/': (context) => const LoginPage(),
         '/home': (context) => const HomePage(),
+        '/registration': (context) => const RegistrationPage(),
       },
       initialRoute: '/',
     );

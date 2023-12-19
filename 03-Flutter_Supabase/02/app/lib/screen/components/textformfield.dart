@@ -4,12 +4,14 @@ class MyTextFormField extends StatelessWidget {
   final TextEditingController controller;
   final Widget label;
   final bool obscureText;
+  final String? Function(String?)? validator;
 
   const MyTextFormField({
     super.key,
     required this.controller,
     required this.label,
     required this.obscureText,
+    required this.validator,
     });
 
   @override
@@ -23,6 +25,7 @@ class MyTextFormField extends StatelessWidget {
       child: TextFormField(
         obscureText: obscureText,
         controller: controller,
+        validator: validator,
         decoration: InputDecoration(
           label: label,
           border: OutlineInputBorder(

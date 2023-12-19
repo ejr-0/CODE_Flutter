@@ -35,10 +35,10 @@ class _LoginPageState extends State<LoginPage> {
         Navigator.pushNamed(context, '/home');
       }
     } on AuthException catch (error) {
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       context.showErrorSnackBar(error.message);
     } catch (error) {
-      if(!context.mounted) return;
+      if (!context.mounted) return;
       context.showErrorSnackBar('Unexpected error occured');
     }
     setState(() {
@@ -74,11 +74,23 @@ class _LoginPageState extends State<LoginPage> {
                       controller: emailController,
                       label: const Text('Email'),
                       obscureText: false,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter your email address';
+                        }
+                        return null;
+                      },
                     ),
                     MyTextFormField(
                       controller: passwordController,
                       label: const Text('Password'),
                       obscureText: true,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter your password';
+                        }
+                        return null;
+                      },
                     ),
                     isLoading
                         ? const Padding(
@@ -98,7 +110,12 @@ class _LoginPageState extends State<LoginPage> {
                           ),
                     const SpacerWithLine(),
                     SignUpButton(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.popAndPushNamed(
+                          context,
+                          '/registration',
+                        );
+                      },
                     ),
                   ],
                 )),
