@@ -5,6 +5,7 @@ class MyTextFormField extends StatelessWidget {
   final Widget label;
   final bool obscureText;
   final String? Function(String?)? validator;
+  final TextInputType keyboardType;
 
   const MyTextFormField({
     super.key,
@@ -12,7 +13,8 @@ class MyTextFormField extends StatelessWidget {
     required this.label,
     required this.obscureText,
     required this.validator,
-    });
+    required this.keyboardType,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -23,15 +25,16 @@ class MyTextFormField extends StatelessWidget {
         right: 25,
       ),
       child: TextFormField(
-        obscureText: obscureText,
         controller: controller,
         validator: validator,
+        keyboardType: keyboardType,
         decoration: InputDecoration(
           label: label,
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(20),
           ),
         ),
+        obscureText: obscureText,
       ),
     );
   }
