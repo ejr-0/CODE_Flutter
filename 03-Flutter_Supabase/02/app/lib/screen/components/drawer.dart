@@ -2,7 +2,12 @@ import 'package:app/utils/constant.dart';
 import 'package:flutter/material.dart';
 
 class MyDrawer extends StatelessWidget {
-  const MyDrawer({super.key});
+  final TextEditingController controller;
+
+  const MyDrawer({
+    super.key,
+    required this.controller,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -10,16 +15,23 @@ class MyDrawer extends StatelessWidget {
       width: 225,
       child: ListView(
         children: [
-          const DrawerHeader(
+          DrawerHeader(
             child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                Icon(
+                const Icon(
                   Icons.person,
-                  size: 100,
+                  size: 50,
                 ),
-                Text('User name'),
+                TextFormField(
+                  controller: controller,
+                  readOnly: true,
+                  textAlign: TextAlign.center,
+                  decoration: const InputDecoration(
+                    border: InputBorder.none,
+                  ),
+                ),
               ],
             ),
           ),

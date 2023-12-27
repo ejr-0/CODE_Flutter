@@ -1,6 +1,7 @@
 import 'package:app/screen/components/drawer.dart';
 import 'package:app/utils/constant.dart';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -10,6 +11,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final TextEditingController _usernameController = TextEditingController();
+
+  Future<void> getProfile() async {
+    try {
+      final userId = client.auth.currentUser!.id;
+      final data =
+          await client.from('profiles').select().eq('id', userId).single();
+
+      _usernameController.text = (data['username'] ?? '') as String;
+    } on PostgrestException catch (error) {
+      if (!context.mounted) return;
+      context.showErrorSnackBar(error.message);
+    } on AuthException catch (error) {
+      if (!context.mounted) return;
+      context.showErrorSnackBar(error.message);
+    } catch (error) {
+      if (!context.mounted) return;
+      context.showErrorSnackBar('Unexpected error occured!');
+    }
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    getProfile();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -29,7 +57,9 @@ class _HomePageState extends State<HomePage> {
           child: const Text('Log out'),
         ),
       ),
-      drawer: const MyDrawer(),
+      drawer: MyDrawer(
+        controller: _usernameController,
+      ),
     );
   }
 }
