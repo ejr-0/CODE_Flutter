@@ -3,10 +3,13 @@ import 'package:flutter/material.dart';
 
 class MyDrawer extends StatelessWidget {
   final TextEditingController controller;
+ 
+  final String? imageURL;
 
   const MyDrawer({
     super.key,
     required this.controller,
+    required this.imageURL,
   });
 
   @override
@@ -20,10 +23,17 @@ class MyDrawer extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: [
-                const Icon(
-                  Icons.person,
-                  size: 50,
-                ),
+                (imageURL == null || imageURL!.isEmpty)
+                    ? const Icon(
+                        Icons.person,
+                        size: 70,
+                      )
+                    : Image.network(
+                        imageURL!,
+                        width: 70,
+                        height: 70,
+                        fit: BoxFit.cover,
+                      ),
                 TextFormField(
                   controller: controller,
                   readOnly: true,

@@ -12,14 +12,21 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final TextEditingController _usernameController = TextEditingController();
+  String? _avatarURL;
+  bool isLoading = false;
 
   Future<void> getProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final userId = client.auth.currentUser!.id;
       final data =
           await client.from('profiles').select().eq('id', userId).single();
 
       _usernameController.text = (data['username'] ?? '') as String;
+      _avatarURL = (data['avatar_url'] ?? '') as String;
     } on PostgrestException catch (error) {
       if (!context.mounted) return;
       context.showErrorSnackBar(error.message);
@@ -30,6 +37,10 @@ class _HomePageState extends State<HomePage> {
       if (!context.mounted) return;
       context.showErrorSnackBar('Unexpected error occured!');
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -59,6 +70,7 @@ class _HomePageState extends State<HomePage> {
       ),
       drawer: MyDrawer(
         controller: _usernameController,
+        imageURL: _avatarURL,
       ),
     );
   }

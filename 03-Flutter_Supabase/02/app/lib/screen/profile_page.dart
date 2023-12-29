@@ -1,3 +1,4 @@
+import 'package:app/screen/components/avatar.dart';
 import 'package:app/screen/components/button.dart';
 import 'package:app/screen/components/drawer.dart';
 import 'package:app/screen/components/textformfield.dart';
@@ -17,8 +18,14 @@ class _ProfilePageState extends State<ProfilePage> {
   final TextEditingController _usernameController = TextEditingController();
   final TextEditingController _fullnameController = TextEditingController();
   final TextEditingController _websiteURLController = TextEditingController();
+  String? _avatarURL;
+  bool isLoading = false;
 
   Future<void> getProfile() async {
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       final userId = client.auth.currentUser!.id;
       final data =
@@ -27,6 +34,7 @@ class _ProfilePageState extends State<ProfilePage> {
       _usernameController.text = (data['username'] ?? '') as String;
       _fullnameController.text = (data['full_name'] ?? '') as String;
       _websiteURLController.text = (data['website'] ?? '') as String;
+      _avatarURL = (data['avatar_url'] ?? '') as String;
     } on PostgrestException catch (error) {
       if (!context.mounted) return;
       context.showErrorSnackBar(error.message);
@@ -37,6 +45,10 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!context.mounted) return;
       context.showErrorSnackBar('Unexpected error occured!');
     }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   Future<void> updateProfile() async {
@@ -60,6 +72,10 @@ class _ProfilePageState extends State<ProfilePage> {
       return;
     }
 
+    setState(() {
+      isLoading = true;
+    });
+
     try {
       await client.from('profiles').upsert(updates);
       if (mounted) {
@@ -72,6 +88,38 @@ class _ProfilePageState extends State<ProfilePage> {
       if (!context.mounted) return;
       context.showErrorSnackBar('Unexpected error occured!');
     }
+
+    setState(() {
+      isLoading = false;
+    });
+  }
+
+  ///[onUpload] function
+  Future<void> onUpload(String imageURL) async {
+    setState(() {
+      isLoading = true;
+    });
+
+    try {
+      await client.from('profiles').upsert({
+        'id': client.auth.currentUser!.id,
+        'avatar_url': imageURL,
+      });
+      if (mounted) {
+        Navigator.popAndPushNamed(context, '/profile');
+        context.showErrorSnackBar('Profile image updated!.');
+      }
+    } on PostgrestException catch (error) {
+      if (!context.mounted) return;
+      context.showErrorSnackBar(error.message);
+    } catch (error) {
+      if (!context.mounted) return;
+      context.showErrorSnackBar('Unexpected error occured!');
+    }
+
+    setState(() {
+      isLoading = false;
+    });
   }
 
   @override
@@ -96,56 +144,66 @@ class _ProfilePageState extends State<ProfilePage> {
       ),
       drawer: MyDrawer(
         controller: _usernameController,
+        imageURL: _avatarURL,
       ),
-      body: SingleChildScrollView(
-        child: Form(
-          key: _formKey,
-          child: Column(
-            children: [
-              MyTextFormField(
-                controller: _usernameController,
-                label: const Text('User name'),
-                obscureText: false,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Enter username';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.text,
+      body: isLoading
+          ? const Center(
+              child: CircularProgressIndicator(),
+            )
+          : SingleChildScrollView(
+              padding: const EdgeInsets.only(top: 20),
+              child: Form(
+                key: _formKey,
+                child: Column(
+                  children: [
+                    AvatarWidget(
+                      imageURL: _avatarURL,
+                      onUpload: onUpload,
+                    ),
+                    MyTextFormField(
+                      controller: _usernameController,
+                      label: const Text('User name'),
+                      obscureText: false,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter username';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                    ),
+                    MyTextFormField(
+                      controller: _fullnameController,
+                      label: const Text('Full name'),
+                      obscureText: false,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter username';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.text,
+                    ),
+                    MyTextFormField(
+                      controller: _websiteURLController,
+                      label: const Text('Website URL'),
+                      obscureText: false,
+                      validator: (value) {
+                        if (value == null || value.isEmpty) {
+                          return 'Enter username';
+                        }
+                        return null;
+                      },
+                      keyboardType: TextInputType.url,
+                    ),
+                    MyButton(
+                      onTap: updateProfile,
+                      child: const Text('Submit'),
+                    ),
+                  ],
+                ),
               ),
-              MyTextFormField(
-                controller: _fullnameController,
-                label: const Text('Full name'),
-                obscureText: false,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Enter username';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.text,
-              ),
-              MyTextFormField(
-                controller: _websiteURLController,
-                label: const Text('Website URL'),
-                obscureText: false,
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Enter username';
-                  }
-                  return null;
-                },
-                keyboardType: TextInputType.url,
-              ),
-              MyButton(
-                onTap: updateProfile,
-                child: const Text('Submit'),
-              ),
-            ],
-          ),
-        ),
-      ),
+            ),
     );
   }
 }
